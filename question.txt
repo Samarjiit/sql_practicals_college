@@ -1,0 +1,21 @@
+Customer class
+code 1-100
+Category - I or C - C = 10% discount
+water bill
+
+
+Operator overload >> for displaying  cout << custOBj; //custOBj.show_data();
+<< for input and store it in file. cin >> custOBj;  // custOBj.get_data();
+
+Add Customer
+friend function Display() with code
+    if (water_bill > 750)
+        bad
+    else if water_bill > 250
+        moderate
+    else 
+        good boy
+
+TotalWaterBill
+
+
