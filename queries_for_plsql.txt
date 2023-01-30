@@ -1,0 +1,535 @@
+7.1
+set serveroutput on
+declare
+var1 number(3);
+var2 number(4);
+var3 number(4);
+begin
+var1 :=100;
+var2 :=200;
+var3 := var1 + var2 ;
+dbms_output.put_line('sum of ' ||var1 || 'and' ||var2||' is : ' || var3);
+end;
+/
+
+sum of 100and200 is : 300
+
+PL/SQL procedure successfully completed.
+
+7.2
+declare 
+i int;
+len int;
+str1 varchar(30):='&str1';
+str2 varchar(30);
+ch char;
+begin
+len:=length(str1);
+i:=1;
+while(len>=1)
+loop
+ch:=substr(str1,len,1);
+str2:=concat(str2,ch);
+len:=len-1;
+end loop;
+dbms_output.put_line('reverse string is :'||str2);
+if str2=str1 then
+dbms_output.put_line('it is a palindrome');
+else
+dbms_output.put_line('not a palindrome');
+end if;
+end;
+/
+Enter value for str1: radar
+old   4: str1 varchar(30):='&str1';
+new   4: str1 varchar(30):='radar';
+reverse string is :radar
+it is a palindrome
+
+PL/SQL procedure successfully completed.
+
+Enter value for str1: this
+old   4: str1 varchar(30):='&str1';
+new   4: str1 varchar(30):='this';
+reverse string is :siht
+not a palindrome
+
+PL/SQL procedure successfully completed.
+
+7.3
+set serveroutput on
+ declare
+    deptname dept_5.dname%TYPE ;
+    empnao emp_5.empno%type :=&empnao;
+    empname emp_5.ename%type;
+    salary emp_5.sal%type;
+  	begin
+   select empno, sal, ename,dname into empnao, salary,empname,deptname from emp_5,dept_5 where dno=deptno and empno=empnao;
+   dbms_output.put_line(empname || ' works in '|| deptname || ' department and  draws '||salary ||'/- as salary');
+   end;
+   /
+Enter value for empnao: 103
+old   3: empnao emp_5.empno%type :=&empnao;
+new   3: empnao emp_5.empno%type :=103;
+Jiya works in Marketing department and  draws 21000/- as salary
+
+7.4
+create table empsal(
+empno number(4),
+ename varchar(10),
+sal number(7,2),
+hra number(7,2),
+da number(7,2),
+gross_sal number(7,2),
+pf number(7,2),
+net_sal number(7,2));
+
+declare 
+eno emp_5.empno%type;
+enme emp_5.ename%type;
+esal emp_5.sal%type;
+aemp number(4):=&aemp;
+ehra empsal.hra%type;
+eda empsal.da%type;
+egs empsal.gross_sal%type;
+epf empsal.pf%type;
+
+enetsal empsal.net_sal%type;
+begin
+select empno,ename,sal into eno,enme,esal from emp_5 where empno=aemp;
+ehra:=esal*50/100;
+eda:=esal*20/100;
+epf:=esal*12/100;
+egs:=esal+ehra+eda;
+enetsal:=egs-epf;
+insert into empsal values(eno,enme,esal,ehra,eda,egs,epf,enetsal);
+dbms_output.put_line(enme);
+dbms_output.put_line(ehra);
+end;
+/
+
+Enter value for aemp: 106
+old   5: aemp number(4):=&aemp;
+new   5: aemp number(4):=106;
+Miya
+25000
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from empsal;
+
+     EMPNO ENAME             SAL        HRA         DA  GROSS_SAL         PF
+---------- ---------- ---------- ---------- ---------- ---------- ----------
+   NET_SAL
+----------
+       103 Jiya            21000      10500       4200      35700       2520
+     33180
+
+       101 Ravi            32000      16000       6400      54400       3840
+     50560
+
+       104 Mitha           21000      10500       4200      35700       2520
+     33180
+
+
+     EMPNO ENAME             SAL        HRA         DA  GROSS_SAL         PF
+---------- ---------- ---------- ---------- ---------- ---------- ----------
+   NET_SAL
+----------
+       106 Miya            50000      25000      10000      85000       6000
+     79000
+
+
+7.5
+CREATE TABLE areas(Radius number(5), area number(14,2));
+declare 
+pi constant number(4,2):=3.14;
+radius number(5);
+area number(14,2);
+begin
+radius:=3;
+while radius<=7
+loop
+area:=pi*power(radius,2);
+insert into areas
+values(radius,area);
+radius:=radius+1;
+end loop;
+end;
+/
+select * from areas;
+PL/SQL procedure successfully completed.
+
+SQL> select * from areas;
+
+    RADIUS       AREA
+---------- ----------
+         3      28.26
+         4      50.24
+         5       78.5
+         6     113.04
+         7     153.86
+
+
+8.1
+
+ DECLARE
+       enamee emp_5.ename%TYPE;
+       salary emp_5.sal%TYPE;
+       CURSOR cur_test IS
+           SELECT ename,sal FROM emp_5 WHERE sal > 30000;
+   BEGIN
+       OPEN cur_test;
+       LOOP
+           FETCH cur_test INTO enamee,salary;
+          EXIT WHEN cur_test%NOTFOUND;
+         DBMS_OUTPUT.PUT_LINE('Name: ' || enamee ||' salary: '
+              || salary);
+      END LOOP;
+        DBMS_OUTPUT.PUT_LINE('Number records: '||cur_test%rowcount);
+      CLOSE cur_test;
+  END;
+   /
+Name: Ravi salary: 32000
+Name: Raghu salary: 45000
+Name: Priya salary: 60000
+Name: Miya salary: 50000
+Name: Mahesh salary: 35000
+Number records: 5
+
+PL/SQL procedure successfully completed.
+
+
+8.2
+alter table emp_5 modify sal number(15,2);
+
+SET SERVEROUTPUT ON
+DECLARE
+CURSOR cur IS select dno,prj_no,prj_credit,prj_fund from proj_5;
+alloc number;
+alloc_per_emp number;
+cont number;
+BEGIN
+for i in cur
+LOOP
+alloc:=(i.prj_credit*10/100)*i.prj_fund;
+UPDATE dept_5 set dept_budget =dept_budget +((30/100)*alloc) where dno=i.dno;
+alloc_per_emp :=(70/100)*alloc;
+select count(*) into cont from proj_5 where prj_no=i.prj_no and dno=i.dno;
+UPDATE emp_5 set sal=round(sal+(alloc_per_emp/cont))where prj_id=i.prj_no and deptno=i.dno;
+end loop;
+end;
+/
+
+SQL> select deptno, sal from emp_5;
+
+DEP        SAL
+--- ----------
+D1      144000
+D4       45000
+D5       60000
+D1      133000
+D2       49000
+D2       78000
+D3       98000
+D1      197000
+D1      200000
+D1      199000
+rollback;
+Rollback completed;
+
+
+8.3
+SET SERVEROUTPUT ON
+DECLARE
+	CURSOR cur_empl(v_deptno varchar, v_job varchar) IS SELECT ename,job,sal FROM emp_5 
+	WHERE deptno = v_deptno and job=v_job;
+	BEGIN
+	for i in cur_empl('&v_deptno','&v_job')
+	LOOP
+	DBMS_OUTPUT.PUT_LINE('employee_name : ' || i.ename || '  job : ' || i.job || '  Salary : ' || i.sal); 
+	END LOOP; 
+	END;
+	/
+Enter value for v_deptno: D1
+Enter value for v_job: MGR
+old   5: for i in cur_empl('&v_deptno','&v_job')
+new   5: for i in cur_empl('D1','MGR')
+employee_name : Ravi  job : MGR  Salary : 32000
+
+PL/SQL procedure successfully completed.
+
+
+
+
+8.4
+DECLARE    
+      CURSOR highest_paid_emp(v_prj_id varchar) IS
+ 		SELECT prj_id,ename,sal,dname FROM emp_5,dept_5 where deptno=dno and prj_id=v_prj_id order by sal desc fetch first 2 rows only;
+         
+    BEGIN
+        for i in highest_paid_emp('&v_prj_id')
+        LOOP
+          DBMS_OUTPUT.PUT_LINE('Name: ' || i.ename    ||' salary: '|| i.sal|| '   dname : '|| i.dname || '    project_id : '|| i.prj_id );
+       	END LOOP;
+   END;
+   /
+
+Enter value for v_prj_id: P3
+old   5:         for i in highest_paid_emp('&v_prj_id')
+new   5:         for i in highest_paid_emp('P3')
+Name: Sanjana salary: 25000   dname : Marketing    project_id : P3
+Name: Raviraj salary: 24000   dname : Marketing    project_id : P3
+
+
+
+L9
+
+9.1 i.
+SET SERVEROUTPUT ON
+DECLARE
+   a NUMBER(10);
+   v_empno emp_5.empno%TYPE;
+BEGIN
+   v_empno:= &num;
+   SELECT to_NUMBER(ename) INTO a FROM emp_5 WHERE empno=v_empno;
+EXCEPTION
+   WHEN INVALID_NUMBER THEN
+   	dbms_output.put_line('ename cannot be converted to NUMBER');
+END;
+/
+
+Enter value for num: 112
+old   5:    v_empno:= &num;
+new   5:    v_empno:= 112;
+ename cannot be converted to NUMBER
+
+
+9.1 ii.
+SET SERVEROUTPUT ON
+DECLARE
+    v_ename emp_5.ename%type;
+    v_empno emp_5.empno%type;
+BEGIN
+    v_empno:= &v_empno;
+    SELECT ename  into v_ename FROM emp_5 WHERE empno=v_empno;
+    dbms_output.put_line('Ename ' || v_ename);
+    exception
+    when no_data_found then
+   dbms_output.put_line('EMPNO DOES NOT EXISTS');
+END;
+/
+Enter value for v_empno: 666
+old   5:     v_empno:= &v_empno;
+new   5:     v_empno:= 666;
+EMPNO DOES NOT EXISTS
+
+
+9.1 iii.
+SET SERVEROUTPUT ON
+DECLARE
+    v_ename emp_5.ename%type;
+    v_deptno emp_5.deptno%type;
+BEGIN
+    v_deptno:= '&v_deptno';
+    SELECT ename  into v_ename FROM emp_5 WHERE deptno=v_deptno;
+    dbms_output.put_line('Ename ' || v_ename);
+    exception
+    when TOO_MANY_ROWS then
+    dbms_output.put_line('RETURNING MORE THAN ONE RECORD');
+END;
+/
+
+Enter value for v_deptno: D1
+old   5:     v_deptno:= '&v_deptno';
+new   5:     v_deptno:= 'D1';
+RETURNING MORE THAN ONE RECORD
+
+
+
+9.2
+ set serveroutput on
+ declare
+   principal exception;
+   year exception;
+   interest_rt exception;
+   principal_amount number(5):=&principal_amount;
+   time number(5):=&time;
+   interest_rate number(5):=&interest_rate;
+   simple_interest number(5);
+  
+  begin
+  if principal_amount<=1000
+  then
+  	raise principal;
+  elsif interest_rate<5
+  then 
+	raise interest_rt;	
+  elsif time<1
+  then
+   	raise year;
+  else
+   simple_interest:=principal_amount*time*interest_rate/100;
+   DBMS_OUTPUT.PUT_LINE('SIMPLE INTEREST IS : ' || simple_interest);
+  end if;
+  exception
+   when principal then
+   DBMS_OUTPUT.PUT_LINE('error!! principal amount less than and equal to 1000');
+   when year then
+   DBMS_OUTPUT.PUT_LINE('error!! year is less than 1');
+   when interest_rt then
+   DBMS_OUTPUT.PUT_LINE('error!! interest is less than 5 percent ');
+   end;
+  /
+Enter value for principal_amount: 500
+old   5: principal_amount number(5):=&principal_amount;
+new   5: principal_amount number(5):=500;
+Enter value for time: 4
+old   6: time number(5):=&time;
+new   6: time number(5):=4;
+Enter value for interest_rate: 1
+old   7: interest_rate number(5):=&interest_rate;
+new   7: interest_rate number(5):=1;
+error!! principal amount less than and equal to 1000
+
+PL/SQL procedure successfully completed.
+
+
+
+
+9.3
+SET SERVEROUTPUT ON
+DECLARE
+	v_eno emp_5.empno%TYPE := &v_eno;
+	v_ename emp_5.ename%TYPE;
+	v_sal emp_5.sal%TYPE;
+	e_sal_more_25k EXCEPTION;
+BEGIN
+	SELECT ename,sal INTO v_ename,v_sal FROM emp_5 WHERE empno=v_eno;
+	IF v_sal>25000 THEN
+		RAISE e_sal_more_25k ;
+	ELSE
+		UPDATE emp_5 SET sal=25000 WHERE empno=v_eno;
+		DBMS_OUTPUT.PUT_LINE('Updated employee no. '||v_eno||' salary to 25000');
+	END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('Employee does not exists');
+	WHEN e_sal_more_25k THEN
+		DBMS_OUTPUT.PUT_LINE('Salary is greater than 25K');
+END;
+/
+
+
+Enter value for v_eno: 106
+old   2: v_eno emp_5.empno%TYPE := &v_eno;
+new   2: v_eno emp_5.empno%TYPE := 106;
+Salary is greater than 25K
+
+Enter value for v_eno: 112
+old   2: v_eno emp_5.empno%TYPE := &v_eno;
+new   2: v_eno emp_5.empno%TYPE := 112;
+Updated employee no. 112 salary to 25000
+
+
+Enter value for v_eno: 7777
+old   2: v_eno emp_5.empno%TYPE := &v_eno;
+new   2: v_eno emp_5.empno%TYPE := 7777;
+Employee does not exists
+
+
+
+10.1
+
+SET SERVEROUTPUT ON
+CREATE OR REPLACE TRIGGER tr_sal_update
+	AFTER UPDATE OF sal ON emp_5 FOR EACH ROW
+DECLARE
+	v_eno sal_mod.empno%TYPE;
+	v_dname sal_mod.dname%TYPE;
+	v_oldsal sal_mod.old_sal%TYPE;
+BEGIN
+	v_eno := :NEW.empno;  
+	v_dname := :OLD.deptno;
+	v_oldsal := :OLD.sal;
+	INSERT INTO sal_mod VALUES(v_eno,v_dname,v_oldsal,SYSDATE,USER);
+END;
+/
+
+CREATE TABLE sal_mod(
+	empno NUMBER(4),
+	dname VARCHAR(10),
+	old_sal NUMBER(7,2),
+	mod_date DATE,
+	modifier VARCHAR(30)
+);
+
+Trigger created.
+
+SQL> update emp_5 set sal =3000 where empno=112;
+
+1 row updated.
+
+SQL> select * from sal_mod;
+
+     EMPNO DNAME         OLD_SAL MOD_DATE  MODIFIER
+---------- ---------- ---------- --------- ------------------------------
+       112 D1              25000 06-DEC-22 SYSTEM
+
+
+
+
+10.2
+SET SERVEROUTPUT ON
+CREATE OR REPLACE TRIGGER dept_proj_update 
+	AFTER UPDATE ON proj_5
+	FOR EACH ROW
+DECLARE
+	v_proj_duration NUMBER(10);
+	v_lapsed_duration NUMBER(10);
+	v_fund NUMBER(10);
+BEGIN
+	v_proj_duration := :OLD.end_date - :OLD.start_date;
+	v_lapsed_duration := SYSDATE - :OLD.start_date;
+	IF v_lapsed_duration < (0.5 * v_proj_duration) THEN
+		v_fund := (:NEW.prj_fund - :OLD.prj_fund ) * 0.7;
+		DBMS_OUTPUT.PUT_LINE('You are eligible for Rs.' || v_fund || '% of additional fund requested' );
+	ELSE
+		v_fund := (:NEW.prj_fund - :OLD.prj_fund ) * 0.4;
+		DBMS_OUTPUT.PUT_LINE('You are eligible for Rs.' || v_fund || '% of additional fund requested'  );
+	END IF;
+END;
+/
+
+Trigger created.
+
+SQL> update proj_5 set prj_fund=prj_fund+100 where dno='D1';
+You are eligible for Rs.40% of additional fund requested
+You are eligible for Rs.40% of additional fund requested
+
+DNO PRJ_N PRJ_NAME   PRJ_CREDIT START_DAT END_DATE    PRJ_FUND
+--- ----- ---------- ---------- --------- --------- ----------
+D1  P1    alpha               4 01-OCT-20 01-OCT-21     400200
+D2  P1    beta                2 21-DEC-21 01-OCT-22     200000
+D3  P2    gama                3 20-FEB-22 01-OCT-22     300000
+D1  P3    theta               5 20-FEB-21 01-OCT-21     500200
+D4  P2    omega               7 23-FEB-20 01-JAN-21     700000
+
+
+
+10.3
+
+SET SERVEROUTPUT ON
+CREATE OR REPLACE TRIGGER tr_holiday_no_work
+	BEFORE INSERT OR UPDATE OF sal OR DELETE   
+	ON emp_5
+	FOR EACH ROW
+BEGIN
+	IF TO_CHAR(SYSDATE,'DY') = 'SUN' OR TO_CHAR(SYSDATE,'DY') = 'SAT' THEN
+		RAISE_APPLICATION_ERROR(-20111 ,USER||', No changes can be made on Saturday/Sunday');
+	END IF;
+END;
+/
+
+
+
